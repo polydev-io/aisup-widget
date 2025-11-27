@@ -4,18 +4,17 @@
   "description": "Embeddable AI Support Chat Widget with React/Next.js support",
   "type": "module",
   "main": "dist/widget.umd.js",
-  "module": "dist/widget.esm.js",
-  "types": "dist/types/index.d.ts",
+  "module": "dist/widget.es.js",
+  "types": "src/widget.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/widget.esm.js",
+      "import": "./dist/widget.es.js",
       "require": "./dist/widget.umd.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./src/widget.d.ts"
     },
     "./react": {
-      "import": "./dist/react.esm.js",
-      "require": "./dist/react.umd.js",
-      "types": "./dist/types/react.d.ts"
+      "import": "./src/react.tsx",
+      "types": "./src/react.tsx"
     },
     "./widget.css": "./dist/widget.css",
     "./iife": "./dist/widget.iife.js"
@@ -26,8 +25,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run build:types",
-    "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
+    "build": "vite build",
     "preview": "vite preview",
     "prepublishOnly": "npm run build"
   },

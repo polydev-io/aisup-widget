@@ -6,44 +6,20 @@ export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      entry: {
-        widget: resolve(__dirname, 'src/widget.js'),
-        react: resolve(__dirname, 'src/react.tsx')
-      },
-      name: 'AISupportWidget'
+      entry: resolve(__dirname, 'src/widget.js'),
+      name: 'AISupportWidget',
+      fileName: (format) => `widget.${format}.js`,
+      formats: ['es', 'umd', 'iife']
     },
     outDir: 'dist',
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
-      output: [
-        {
-          format: 'iife',
-          name: 'AISupportWidget',
-          entryFileNames: 'widget.iife.js',
-          assetFileNames: 'widget.[ext]',
-          globals: {
-            'react': 'React',
-            'react-dom': 'ReactDOM',
-            'react/jsx-runtime': 'React'
-          }
-        },
-        {
-          format: 'es',
-          entryFileNames: '[name].esm.js',
-          assetFileNames: 'widget.[ext]'
-        },
-        {
-          format: 'umd',
-          name: 'AISupportWidget',
-          entryFileNames: '[name].umd.js',
-          assetFileNames: 'widget.[ext]',
-          globals: {
-            'react': 'React',
-            'react-dom': 'ReactDOM',
-            'react/jsx-runtime': 'React'
-          }
+      output: {
+        assetFileNames: 'widget.[ext]',
+        globals: {
+          'react': 'React',
+          'react-dom': 'ReactDOM'
         }
-      ]
+      }
     }
   },
   server: {
