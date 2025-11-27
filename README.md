@@ -361,53 +361,8 @@ const socket = useAISupportSocket({ apiKey, apiUrl });
 
 ## 📱 Мобильные SDK
 
-### iOS (Swift Package)
-
-```swift
-// Package.swift
-.package(url: "https://github.com/polydev-io/aisup-widget.git", from: "1.0.0")
-```
-
-```swift
-import AISupportSDK
-
-let sdk = AISupportSDK(config: AISupportConfig(
-    apiKey: "xxx",
-    apiUrl: "https://api.example.com"
-))
-
-sdk.onMessage = { message in print(message.content) }
-
-try await sdk.start()
-try await sdk.sendMessage("Привет!")
-```
-
-📖 [Полная документация iOS](ios/README.md)
-
-### Android (Kotlin)
-
-```kotlin
-// build.gradle.kts
-implementation("com.github.polydev-io:aisup-widget:1.0.0")
-```
-
-```kotlin
-import io.polydev.aisupport.*
-
-val sdk = AISupportSDK(AISupportConfig(
-    apiKey = "xxx",
-    apiUrl = "https://api.example.com"
-))
-
-sdk.onMessage = { message -> Log.d("Chat", message.content) }
-
-lifecycleScope.launch {
-    sdk.start()
-    sdk.sendMessage("Привет!")
-}
-```
-
-📖 [Полная документация Android](android/README.md)
+- **iOS**: [github.com/polydev-io/aisup-ios](https://github.com/polydev-io/aisup-ios)
+- **Android**: [github.com/polydev-io/aisup-android](https://github.com/polydev-io/aisup-android)
 
 ---
 
@@ -423,13 +378,11 @@ lifecycleScope.launch {
 
 ---
 
-## 📱 Поддержка платформ
+## 📱 Поддержка
 
 | Платформа | Версия |
 |-----------|--------|
-| Web (Chrome, Firefox, Safari, Edge) | Последние 2 версии |
-| iOS | 13+ |
-| Android | API 21+ (5.0) |
+| Chrome, Firefox, Safari, Edge | Последние 2 версии |
 | React | 16.8+ |
 | Next.js | 12+ |
 
