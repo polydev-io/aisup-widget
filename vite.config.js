@@ -1,19 +1,20 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  plugins: [react()],
   build: {
     lib: {
       entry: {
         widget: resolve(__dirname, 'src/widget.js'),
         react: resolve(__dirname, 'src/react.tsx')
       },
-      name: 'AISupportWidget',
-      formats: ['es', 'umd', 'iife']
+      name: 'AISupportWidget'
     },
     outDir: 'dist',
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ['react', 'react-dom', 'react/jsx-runtime'],
       output: [
         {
           format: 'iife',
@@ -21,18 +22,15 @@ export default defineConfig({
           entryFileNames: 'widget.iife.js',
           assetFileNames: 'widget.[ext]',
           globals: {
-            react: 'React',
-            'react-dom': 'ReactDOM'
+            'react': 'React',
+            'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'React'
           }
         },
         {
           format: 'es',
           entryFileNames: '[name].esm.js',
-          assetFileNames: 'widget.[ext]',
-          globals: {
-            react: 'React',
-            'react-dom': 'ReactDOM'
-          }
+          assetFileNames: 'widget.[ext]'
         },
         {
           format: 'umd',
@@ -40,8 +38,9 @@ export default defineConfig({
           entryFileNames: '[name].umd.js',
           assetFileNames: 'widget.[ext]',
           globals: {
-            react: 'React',
-            'react-dom': 'ReactDOM'
+            'react': 'React',
+            'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'React'
           }
         }
       ]
