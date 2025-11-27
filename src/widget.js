@@ -57,7 +57,10 @@ class AISupportWidget {
       enableSound: config.enableSound || false,
       
       // Z-index
-      zIndex: config.zIndex || 999999
+      zIndex: config.zIndex || 999999,
+      
+      // Headless mode - hide built-in toggle button
+      headless: config.headless || false
     };
 
     this.chatId = this.generateChatId();
@@ -65,6 +68,7 @@ class AISupportWidget {
     this.isInitialized = false;
     this.messages = [];
     this.socket = null;
+    this.boundTriggers = [];
 
     this.init();
   }
@@ -126,8 +130,12 @@ class AISupportWidget {
     // Create container
     this.container = document.createElement('div');
     this.container.className = `aisup-widget aisup-${this.config.position}`;
+    
+    // Toggle button visibility based on headless mode
+    const toggleBtnStyle = this.config.headless ? 'display: none;' : '';
+    
     this.container.innerHTML = `
-      <button class="aisup-toggle-btn" id="aisup-toggle">
+      <button class="aisup-toggle-btn" id="aisup-toggle" style="${toggleBtnStyle}">
         <svg class="aisup-icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         </svg>
@@ -619,7 +627,48 @@ class AISupportWidget {
     return div.innerHTML;
   }
 
+  /**
+   * Attach widget toggle to custom element(s)
+   * @param {string|Element|Element[]} selector - CSS selector, element, or array of elements
+   * @returns {AISupportWidget} - Returns this for chaining
+   */
+  attachTo(selector) {
+    let elements = [];
+    
+    if (typeof selector === 'string') {
+      elements = Array.from(document.querySelectorAll(selector));
+    } else if (selector instanceof Element) {
+      elements = [selector];
+    } else if (Array.isArray(selector)) {
+      elements = selector;
+    }
+    
+    elements.forEach(el => {
+      const handler = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggle();
+      };
+      el.addEventListener('click', handler);
+      this.boundTriggers.push({ element: el, handler });
+    });
+    
+    return this;
+  }
+
+  /**
+   * Remove all attached triggers
+   */
+  detach() {
+    this.boundTriggers.forEach(({ element, handler }) => {
+      element.removeEventListener('click', handler);
+    });
+    this.boundTriggers = [];
+    return this;
+  }
+
   destroy() {
+    this.detach();
     if (this.socket) {
       this.socket.disconnect();
     }

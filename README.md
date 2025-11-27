@@ -38,12 +38,15 @@ npm run build
 ```
 
 Результат будет в папке `dist/`:
-- `dist/widget.js` - JavaScript виджета
+- `dist/widget.iife.js` - Для подключения через `<script>` тег
+- `dist/widget.esm.js` - ES Module для современных бандлеров
+- `dist/widget.umd.js` - UMD для CommonJS/AMD
+- `dist/react.esm.js` - React компонент
 - `dist/widget.css` - Стили виджета
 
-## 📦 Использование на вашем сайте
+## 📦 Способы подключения
 
-### Вариант 1: Подключение скриптом
+### Вариант 1: Подключение через `<script>` (флоатинг кнопка)
 
 ```html
 <!DOCTYPE html>
@@ -55,29 +58,125 @@ npm run build
   <!-- Ваш контент -->
 
   <!-- AI Support Widget -->
-  <script src="https://your-cdn.com/widget.js"></script>
+  <script src="https://your-cdn.com/widget.iife.js"></script>
   <script>
     new AISupportWidget({
-      apiKey: 'aisup_your-api-key-here',
+      apiKey: 'YOUR_API_KEY',
       apiUrl: 'https://your-api.com',
       wsUrl: 'https://your-api.com',
       userName: 'Гость',
       primaryColor: '#4F46E5',
-      position: 'bottom-right',
-      buttonText: 'Поддержка'
+      position: 'bottom-right'
     });
   </script>
 </body>
 </html>
 ```
 
-### Вариант 2: Через iframe
+### Вариант 2: Headless режим с кастомной кнопкой
 
 ```html
-<iframe 
-  src="https://your-domain.com/widget-frame.html?apiKey=xxx" 
-  style="position: fixed; bottom: 20px; right: 20px; width: 400px; height: 600px; border: none; z-index: 999999;"
-></iframe>
+<button id="my-support-btn">Открыть чат</button>
+
+<script src="https://your-cdn.com/widget.iife.js"></script>
+<script>
+  const widget = new AISupportWidget({
+    apiKey: 'YOUR_API_KEY',
+    apiUrl: 'https://your-api.com',
+    headless: true  // Скрывает встроенную кнопку
+  });
+  
+  // Привязка к кастомной кнопке
+  widget.attachTo('#my-support-btn');
+  
+  // Или программное управление
+  // widget.open();
+  // widget.close();
+  // widget.toggle();
+</script>
+```
+
+### Вариант 3: React / Next.js
+
+```bash
+npm install aisup-widget
+```
+
+**Флоатинг кнопка:**
+```tsx
+import { AISupportChatWidget } from 'aisup-widget/react';
+import 'aisup-widget/widget.css';
+
+export default function App() {
+  return (
+    <div>
+      <h1>My App</h1>
+      <AISupportChatWidget 
+        apiKey="YOUR_API_KEY"
+        apiUrl="https://your-api.com"
+        primaryColor="#4F46E5"
+      />
+    </div>
+  );
+}
+```
+
+**Кастомная кнопка (через children):**
+```tsx
+import { AISupportChatWidget } from 'aisup-widget/react';
+import 'aisup-widget/widget.css';
+
+export default function App() {
+  return (
+    <div>
+      <h1>My App</h1>
+      <AISupportChatWidget apiKey="YOUR_API_KEY" apiUrl="https://your-api.com">
+        <button>💬 Открыть чат</button>
+      </AISupportChatWidget>
+    </div>
+  );
+}
+```
+
+**Использование хука:**
+```tsx
+import { useAISupportWidget } from 'aisup-widget/react';
+import 'aisup-widget/widget.css';
+
+export default function MyComponent() {
+  const { open, close, toggle, isOpen, isReady } = useAISupportWidget({
+    apiKey: 'YOUR_API_KEY',
+    apiUrl: 'https://your-api.com',
+    headless: true
+  });
+
+  return (
+    <button onClick={open} disabled={!isReady}>
+      {isOpen ? 'Закрыть' : 'Открыть'} чат
+    </button>
+  );
+}
+```
+
+**Next.js (App Router) - важно использовать 'use client':**
+```tsx
+'use client';
+
+import dynamic from 'next/dynamic';
+
+const AISupportChatWidget = dynamic(
+  () => import('aisup-widget/react').then(mod => mod.AISupportChatWidget),
+  { ssr: false }
+);
+
+export default function ChatWidget() {
+  return (
+    <AISupportChatWidget 
+      apiKey="YOUR_API_KEY"
+      apiUrl="https://your-api.com"
+    />
+  );
+}
 ```
 
 ## ⚙️ Конфигурация
@@ -121,6 +220,7 @@ npm run build
 | `showTimestamp` | boolean | `true` | Показывать время сообщений |
 | `showAvatar` | boolean | `true` | Показывать аватары |
 | `zIndex` | number | `999999` | Z-index виджета |
+| `headless` | boolean | `false` | Скрыть встроенную кнопку (для кастомной) |
 
 **📚 Подробнее**: См. [Руководство по кастомизации](CUSTOMIZATION.md) с готовыми темами и примерами!
 
@@ -183,10 +283,13 @@ const widget = new AISupportWidget(config);
 ### Методы экземпляра
 
 ```javascript
-widget.open();        // Открыть чат
-widget.close();       // Закрыть чат
-widget.toggle();      // Переключить состояние
-widget.destroy();     // Удалить виджет из DOM
+widget.open();                      // Открыть чат
+widget.close();                     // Закрыть чат
+widget.toggle();                    // Переключить состояние
+widget.attachTo('#my-btn');         // Привязать к элементу
+widget.attachTo('.support-btns');   // Привязать к нескольким элементам
+widget.detach();                    // Отвязать все триггеры
+widget.destroy();                   // Удалить виджет из DOM
 ```
 
 ## 🎨 Кастомизация стилей
@@ -217,14 +320,57 @@ widget.destroy();     // Удалить виджет из DOM
 ```
 aisup-widget/
 ├── src/
-│   ├── widget.js      # Основная логика виджета
-│   └── widget.css     # Стили виджета
+│   ├── widget.js      # Основная логика виджета (vanilla JS)
+│   ├── widget.css     # Стили виджета
+│   ├── react.tsx      # React компонент и хук
+│   ├── widget.d.ts    # TypeScript типы
+│   └── index.ts       # Экспорты
 ├── dist/              # Собранные файлы (после build)
 ├── demo.html          # Demo страница
 ├── vite.config.js     # Конфигурация сборки
+├── tsconfig.json      # TypeScript конфиг
 ├── package.json
 └── README.md
 ```
+
+## 🚀 Сборка и деплой
+
+### Сборка
+
+```bash
+npm install
+npm run build
+```
+
+### Где разместить для подключения на сайты:
+
+1. **CDN (jsDelivr, unpkg)** - после публикации в npm:
+   ```html
+   <script src="https://cdn.jsdelivr.net/npm/aisup-widget/dist/widget.iife.js"></script>
+   ```
+
+2. **Свой сервер/S3/CloudFront:**
+   - Загрузите `dist/widget.iife.js` и `dist/widget.css`
+   - Дайте публичный URL
+
+3. **Netlify/Vercel:**
+   - Загрузите папку `dist` как статику
+
+### Публикация в npm
+
+```bash
+# 1. Убедитесь что вы залогинены
+npm login
+
+# 2. Обновите версию в package.json
+
+# 3. Опубликуйте
+npm publish
+```
+
+После публикации пакет будет доступен:
+- `npm install aisup-widget`
+- CDN: `https://cdn.jsdelivr.net/npm/aisup-widget`
 
 ## 🔌 Интеграция с Backend
 

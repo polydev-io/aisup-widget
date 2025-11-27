@@ -1,18 +1,50 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 
 export default defineConfig({
   build: {
     lib: {
-      entry: 'src/widget.js',
+      entry: {
+        widget: resolve(__dirname, 'src/widget.js'),
+        react: resolve(__dirname, 'src/react.tsx')
+      },
       name: 'AISupportWidget',
-      fileName: 'widget',
-      formats: ['iife']
+      formats: ['es', 'umd', 'iife']
     },
     outDir: 'dist',
     rollupOptions: {
-      output: {
-        assetFileNames: 'widget.[ext]'
-      }
+      external: ['react', 'react-dom'],
+      output: [
+        {
+          format: 'iife',
+          name: 'AISupportWidget',
+          entryFileNames: 'widget.iife.js',
+          assetFileNames: 'widget.[ext]',
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM'
+          }
+        },
+        {
+          format: 'es',
+          entryFileNames: '[name].esm.js',
+          assetFileNames: 'widget.[ext]',
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM'
+          }
+        },
+        {
+          format: 'umd',
+          name: 'AISupportWidget',
+          entryFileNames: '[name].umd.js',
+          assetFileNames: 'widget.[ext]',
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM'
+          }
+        }
+      ]
     }
   },
   server: {
