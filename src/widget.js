@@ -7,7 +7,7 @@ class AISupportWidget {
       // API Configuration
       apiKey: config.apiKey,
       apiUrl: config.apiUrl || 'http://localhost:3000',
-      wsUrl: config.wsUrl || 'http://localhost:3000',
+      wsUrl: config.wsUrl || config.apiUrl || 'http://localhost:3000',
       userName: config.userName || 'Guest',
       
       // Colors

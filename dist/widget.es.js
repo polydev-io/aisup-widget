@@ -2295,7 +2295,7 @@ class st {
       // API Configuration
       apiKey: e.apiKey,
       apiUrl: e.apiUrl || "http://localhost:3000",
-      wsUrl: e.wsUrl || "http://localhost:3000",
+      wsUrl: e.wsUrl || e.apiUrl || "http://localhost:3000",
       userName: e.userName || "Guest",
       // Colors
       primaryColor: e.primaryColor || "#4F46E5",
