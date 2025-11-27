@@ -1,152 +1,167 @@
 # 🤖 AI Support Widget
 
-Встраиваемый виджет чата поддержки с искусственным интеллектом.
-
-## ✨ Возможности
-
-- 💬 **Real-time чат** через WebSocket
-- 🤖 **AI автоответы** через Qwen/N8n
-- 👤 **Переключение на операторов**
-- 📎 **Загрузка файлов** (изображения, видео, документы до 10MB)
-- 📱 **Полная мобильная адаптация** (полноэкранный режим на смартфонах)
-- 🎨 **Настраиваемый дизайн**
-- 📱 **Адаптивный интерфейс**
-- 🔒 **Безопасная аутентификация** через API ключ
-- 💾 **Сохранение истории** в localStorage
-- 🔔 **Уведомления** о новых сообщениях
+Встраиваемый виджет чата поддержки с AI. Подключается на любой сайт одной строкой кода.
 
 ## 🚀 Быстрый старт
 
-### 1. Установка зависимостей
-
-```bash
-npm install
-```
-
-### 2. Запуск dev сервера
-
-```bash
-npm run dev
-```
-
-Откроется demo страница на `http://localhost:5173/demo.html`
-
-### 3. Сборка для production
-
-```bash
-npm run build
-```
-
-Результат будет в папке `dist/`:
-- `dist/widget.iife.js` - Для подключения через `<script>` тег
-- `dist/widget.esm.js` - ES Module для современных бандлеров
-- `dist/widget.umd.js` - UMD для CommonJS/AMD
-- `dist/react.esm.js` - React компонент
-- `dist/widget.css` - Стили виджета
-
-## 📦 Способы подключения
-
-### Вариант 1: Подключение через `<script>` (флоатинг кнопка)
+### Способ 1: CDN (самый простой)
 
 ```html
-<!DOCTYPE html>
-<html>
-<head>
-  <title>My Website</title>
-</head>
-<body>
-  <!-- Ваш контент -->
-
-  <!-- AI Support Widget -->
-  <script src="https://your-cdn.com/widget.iife.js"></script>
-  <script>
-    new AISupportWidget({
-      apiKey: 'YOUR_API_KEY',
-      apiUrl: 'https://your-api.com',
-      wsUrl: 'https://your-api.com',
-      userName: 'Гость',
-      primaryColor: '#4F46E5',
-      position: 'bottom-right'
-    });
-  </script>
-</body>
-</html>
-```
-
-### Вариант 2: Headless режим с кастомной кнопкой
-
-```html
-<button id="my-support-btn">Открыть чат</button>
-
-<script src="https://your-cdn.com/widget.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/polydev-io/aisup-widget@main/dist/widget.iife.js"></script>
 <script>
-  const widget = new AISupportWidget({
+  new AISupportWidget({
     apiKey: 'YOUR_API_KEY',
-    apiUrl: 'https://your-api.com',
-    headless: true  // Скрывает встроенную кнопку
+    apiUrl: 'https://your-api-server.com'
   });
-  
-  // Привязка к кастомной кнопке
-  widget.attachTo('#my-support-btn');
-  
-  // Или программное управление
-  // widget.open();
-  // widget.close();
-  // widget.toggle();
 </script>
 ```
 
-### Вариант 3: React / Next.js
+### Способ 2: npm install из GitHub
 
 ```bash
-npm install aisup-widget
+npm install github:polydev-io/aisup-widget
 ```
 
-**Флоатинг кнопка:**
+Если возникает конфликт зависимостей:
+
+```bash
+npm install github:polydev-io/aisup-widget --legacy-peer-deps
+```
+
+---
+
+## 📦 Варианты подключения
+
+### 1. Флоатинг кнопка в углу экрана
+
+Виджет создаёт кнопку в правом нижнем углу. При клике открывается чат.
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/polydev-io/aisup-widget@main/dist/widget.iife.js"></script>
+<script>
+  new AISupportWidget({
+    apiKey: 'YOUR_API_KEY',
+    apiUrl: 'https://your-api-server.com',
+    primaryColor: '#4F46E5',
+    position: 'bottom-right',
+    headerTitle: 'Поддержка',
+    headerSubtitle: 'Онлайн'
+  });
+</script>
+```
+
+### 2. Кастомная кнопка (headless режим)
+
+Используйте свою кнопку для открытия чата:
+
+```html
+<button id="my-chat-btn">💬 Написать в поддержку</button>
+
+<script src="https://cdn.jsdelivr.net/gh/polydev-io/aisup-widget@main/dist/widget.iife.js"></script>
+<script>
+  const widget = new AISupportWidget({
+    apiKey: 'YOUR_API_KEY',
+    apiUrl: 'https://your-api-server.com',
+    headless: true  // Скрывает встроенную кнопку
+  });
+  
+  // Привязать к вашей кнопке
+  widget.attachTo('#my-chat-btn');
+</script>
+```
+
+### 3. Программное управление
+
+```javascript
+const widget = new AISupportWidget({ 
+  apiKey: 'xxx', 
+  apiUrl: 'https://...',
+  headless: true 
+});
+
+// Управление
+widget.open();   // Открыть чат
+widget.close();  // Закрыть чат
+widget.toggle(); // Переключить
+
+// Привязать к нескольким кнопкам
+widget.attachTo('.support-buttons');
+
+// Отвязать все кнопки
+widget.detach();
+
+// Полностью удалить виджет
+widget.destroy();
+```
+
+### 4. React / Next.js
+
+**Вариант A: Через CDN (рекомендуется — без конфликтов зависимостей)**
+
 ```tsx
+'use client';
+import { useEffect } from 'react';
+
+declare global {
+  interface Window { AISupportWidget: any; }
+}
+
+export function ChatWidget() {
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/gh/polydev-io/aisup-widget@main/dist/widget.iife.js';
+    script.async = true;
+    script.onload = () => {
+      new window.AISupportWidget({
+        apiKey: 'YOUR_API_KEY',
+        apiUrl: 'https://your-api-server.com',
+        primaryColor: '#4F46E5'
+      });
+    };
+    document.body.appendChild(script);
+    
+    return () => { script.remove(); };
+  }, []);
+
+  return null;
+}
+```
+
+**Вариант B: Через npm (если нет конфликтов)**
+
+```tsx
+'use client';
 import { AISupportChatWidget } from 'aisup-widget/react';
 import 'aisup-widget/widget.css';
 
-export default function App() {
+export function ChatWidget() {
   return (
-    <div>
-      <h1>My App</h1>
-      <AISupportChatWidget 
-        apiKey="YOUR_API_KEY"
-        apiUrl="https://your-api.com"
-        primaryColor="#4F46E5"
-      />
-    </div>
+    <AISupportChatWidget 
+      apiKey="YOUR_API_KEY"
+      apiUrl="https://your-api-server.com"
+      primaryColor="#4F46E5"
+    />
   );
 }
 ```
 
-**Кастомная кнопка (через children):**
-```tsx
-import { AISupportChatWidget } from 'aisup-widget/react';
-import 'aisup-widget/widget.css';
+**С кастомной кнопкой:**
 
-export default function App() {
-  return (
-    <div>
-      <h1>My App</h1>
-      <AISupportChatWidget apiKey="YOUR_API_KEY" apiUrl="https://your-api.com">
-        <button>💬 Открыть чат</button>
-      </AISupportChatWidget>
-    </div>
-  );
-}
+```tsx
+<AISupportChatWidget apiKey="xxx" apiUrl="https://...">
+  <button>💬 Открыть чат</button>
+</AISupportChatWidget>
 ```
 
-**Использование хука:**
+**Хук для программного управления:**
+
 ```tsx
 import { useAISupportWidget } from 'aisup-widget/react';
-import 'aisup-widget/widget.css';
 
-export default function MyComponent() {
-  const { open, close, toggle, isOpen, isReady } = useAISupportWidget({
-    apiKey: 'YOUR_API_KEY',
-    apiUrl: 'https://your-api.com',
+function MyComponent() {
+  const { open, close, isOpen, isReady } = useAISupportWidget({
+    apiKey: 'xxx',
+    apiUrl: 'https://...',
     headless: true
   });
 
@@ -158,250 +173,165 @@ export default function MyComponent() {
 }
 ```
 
-**Next.js (App Router) - важно использовать 'use client':**
-```tsx
-'use client';
+---
 
-import dynamic from 'next/dynamic';
+## ⚙️ Все настройки
 
-const AISupportChatWidget = dynamic(
-  () => import('aisup-widget/react').then(mod => mod.AISupportChatWidget),
-  { ssr: false }
-);
+### Обязательные параметры
 
-export default function ChatWidget() {
-  return (
-    <AISupportChatWidget 
-      apiKey="YOUR_API_KEY"
-      apiUrl="https://your-api.com"
-    />
-  );
-}
-```
+| Параметр | Тип | Описание |
+|----------|-----|----------|
+| `apiKey` | string | API ключ из backend (получить у администратора) |
+| `apiUrl` | string | URL вашего API сервера |
 
-## ⚙️ Конфигурация
+### Опциональные параметры
 
 | Параметр | Тип | По умолчанию | Описание |
-|----------|------|--------------|----------|
-| `apiKey` | string | **обязательно** | API ключ из backend |
-| `apiUrl` | string | `http://localhost:3000` | URL REST API |
-| `wsUrl` | string | `http://localhost:3000` | URL WebSocket сервера |
-| `userName` | string | `'Guest'` | Имя пользователя |
-| **Цвета** |
-| `primaryColor` | string | `'#4F46E5'` | Основной цвет (кнопка, сообщения пользователя) |
-| `secondaryColor` | string | `'#FFFFFF'` | Фон окна чата |
-| `textColor` | string | `'#1F2937'` | Цвет текста |
-| `botMessageBg` | string | `'#F3F4F6'` | Фон сообщений бота |
-| `userMessageBg` | string | `'#4F46E5'` | Фон сообщений пользователя |
-| `userMessageText` | string | `'#FFFFFF'` | Цвет текста в сообщениях пользователя |
-| **Позиционирование** |
-| `position` | string | `'bottom-right'` | `bottom-right` или `bottom-left` |
-| `offsetX` | string | `'20px'` | Отступ по горизонтали |
-| `offsetY` | string | `'20px'` | Отступ по вертикали |
-| **Размеры** |
-| `widgetWidth` | string | `'380px'` | Ширина окна чата |
-| `widgetHeight` | string | `'600px'` | Высота окна чата |
-| `buttonSize` | string | `'60px'` | Размер кнопки открытия |
-| **Типографика** |
-| `fontFamily` | string | `-apple-system, ...` | Семейство шрифтов |
-| `fontSize` | string | `'14px'` | Размер шрифта |
-| **Скругления** |
-| `borderRadius` | string | `'12px'` | Радиус окна чата |
-| `buttonRadius` | string | `'50%'` | Радиус кнопки |
-| `messageBubbleRadius` | string | `'12px'` | Радиус сообщений |
-| **Текст** |
-| `welcomeMessage` | string | `'Здравствуйте! Чем могу помочь?'` | Приветственное сообщение |
-| `buttonText` | string | `'Поддержка'` | Текст на кнопке |
-| `placeholderText` | string | `'Напишите сообщение...'` | Placeholder в поле ввода |
-| `headerTitle` | string | `'Поддержка'` | Заголовок в шапке |
-| `headerSubtitle` | string | `'Онлайн'` | Подзаголовок в шапке |
-| **Дополнительно** |
-| `enableAnimations` | boolean | `true` | Включить анимации |
-| `showTimestamp` | boolean | `true` | Показывать время сообщений |
-| `showAvatar` | boolean | `true` | Показывать аватары |
-| `zIndex` | number | `999999` | Z-index виджета |
-| `headless` | boolean | `false` | Скрыть встроенную кнопку (для кастомной) |
+|----------|-----|--------------|----------|
+| `wsUrl` | string | = apiUrl | URL WebSocket (обычно совпадает с apiUrl) |
+| `userName` | string | `'Guest'` | Имя пользователя в чате |
+| `headless` | boolean | `false` | Скрыть встроенную кнопку |
 
-**📚 Подробнее**: См. [Руководство по кастомизации](CUSTOMIZATION.md) с готовыми темами и примерами!
+### Цвета
 
-## 🧪 Тестирование
+| Параметр | По умолчанию | Описание |
+|----------|--------------|----------|
+| `primaryColor` | `'#4F46E5'` | Основной цвет (кнопка, ваши сообщения) |
+| `secondaryColor` | `'#FFFFFF'` | Фон окна чата |
+| `textColor` | `'#1F2937'` | Цвет текста |
+| `botMessageBg` | `'#F3F4F6'` | Фон сообщений бота |
+| `userMessageBg` | `'#4F46E5'` | Фон ваших сообщений |
+| `userMessageText` | `'#FFFFFF'` | Цвет текста ваших сообщений |
 
-### Предварительные требования
+### Позиция и размеры
 
-1. Backend сервер должен быть запущен:
-```bash
-cd ../aisup-backend
-npm run dev
-```
+| Параметр | По умолчанию | Описание |
+|----------|--------------|----------|
+| `position` | `'bottom-right'` | `'bottom-right'` или `'bottom-left'` |
+| `offsetX` | `'20px'` | Отступ от края по горизонтали |
+| `offsetY` | `'20px'` | Отступ от края по вертикали |
+| `widgetWidth` | `'380px'` | Ширина окна чата |
+| `widgetHeight` | `'600px'` | Высота окна чата |
+| `buttonSize` | `'60px'` | Размер кнопки |
 
-2. У вас должен быть API ключ REST бота (создайте через CLI если нужно):
-```bash
-cd ../aisup-backend
-npm run bot:add-integration
-```
+### Тексты
 
-### Запуск demo
+| Параметр | По умолчанию | Описание |
+|----------|--------------|----------|
+| `headerTitle` | `'Поддержка'` | Заголовок в шапке чата |
+| `headerSubtitle` | `'Онлайн'` | Подзаголовок в шапке |
+| `placeholderText` | `'Напишите сообщение...'` | Placeholder в поле ввода |
+| `welcomeMessage` | `'Здравствуйте!'` | Приветственное сообщение |
 
-```bash
-npm run dev
-```
+### Внешний вид
 
-Откройте `http://localhost:5173/demo.html` и протестируйте:
-1. Нажмите на кнопку виджета
-2. Отправьте сообщение
-3. Дождитесь ответа от AI
-4. Попробуйте изменить настройки
+| Параметр | По умолчанию | Описание |
+|----------|--------------|----------|
+| `borderRadius` | `'12px'` | Скругление углов окна |
+| `buttonRadius` | `'50%'` | Скругление кнопки |
+| `fontFamily` | system fonts | Шрифт |
+| `fontSize` | `'14px'` | Размер шрифта |
+| `zIndex` | `999999` | Z-index виджета |
+| `enableAnimations` | `true` | Включить анимации |
 
-## 📱 Поддержка браузеров и устройств
+---
 
-**Десктоп:**
-- Chrome/Edge (последние 2 версии)
-- Firefox (последние 2 версии)
-- Safari (последние 2 версии)
-
-**Мобильные:**
-- Mobile Safari (iOS 12+) - полноэкранный режим
-- Mobile Chrome (Android 8+) - полноэкранный режим
-- Планшеты (iPad, Android tablets) - адаптивный размер
-
-**Особенности мобильной версии:**
-- Полноэкранный режим на смартфонах (< 480px)
-- Touch-оптимизированные кнопки (min 44x44px)
-- Предотвращение зума iOS при фокусе
-- Responsive изображения и видео
-
-📚 **Подробнее**: [Файлы и мобильная версия](FILE_UPLOAD_AND_MOBILE.md)
-
-## 🔧 API методы
-
-### Создание виджета
+## 🔧 Методы API
 
 ```javascript
 const widget = new AISupportWidget(config);
+
+widget.open();                  // Открыть чат
+widget.close();                 // Закрыть чат  
+widget.toggle();                // Переключить открыт/закрыт
+widget.attachTo('#btn');        // Привязать к кнопке
+widget.attachTo('.buttons');    // Привязать к нескольким кнопкам
+widget.detach();                // Отвязать все кнопки
+widget.destroy();               // Полностью удалить виджет
+
+// Свойства (только чтение)
+widget.isOpen;                  // Открыт ли чат
+widget.isInitialized;           // Инициализирован ли виджет
 ```
 
-### Методы экземпляра
+---
 
-```javascript
-widget.open();                      // Открыть чат
-widget.close();                     // Закрыть чат
-widget.toggle();                    // Переключить состояние
-widget.attachTo('#my-btn');         // Привязать к элементу
-widget.attachTo('.support-btns');   // Привязать к нескольким элементам
-widget.detach();                    // Отвязать все триггеры
-widget.destroy();                   // Удалить виджет из DOM
-```
+## 🎨 CSS переменные
 
-## 🎨 Кастомизация стилей
-
-Виджет использует CSS переменные для кастомизации:
-
-```css
-:root {
-  --aisup-primary: #4F46E5;
-  --aisup-primary-hover: #4338CA;
-  --aisup-bg: #FFFFFF;
-  --aisup-text: #1F2937;
-  --aisup-radius: 12px;
-}
-```
-
-Вы можете переопределить их в своем CSS:
+Можно переопределить стили через CSS:
 
 ```css
 .aisup-widget {
-  --aisup-primary: #FF0000;
-  --aisup-radius: 20px;
+  --aisup-primary: #10B981;
+  --aisup-primary-hover: #059669;
+  --aisup-radius: 16px;
+  --aisup-shadow: 0 10px 40px rgba(0,0,0,0.2);
 }
 ```
 
-## 📂 Структура проекта
+---
 
-```
-aisup-widget/
-├── src/
-│   ├── widget.js      # Основная логика виджета (vanilla JS)
-│   ├── widget.css     # Стили виджета
-│   ├── react.tsx      # React компонент и хук
-│   ├── widget.d.ts    # TypeScript типы
-│   └── index.ts       # Экспорты
-├── dist/              # Собранные файлы (после build)
-├── demo.html          # Demo страница
-├── vite.config.js     # Конфигурация сборки
-├── tsconfig.json      # TypeScript конфиг
-├── package.json
-└── README.md
-```
-
-## 🚀 Сборка и деплой
-
-### Сборка
-
-```bash
-npm install
-npm run build
-```
-
-### Где разместить для подключения на сайты:
-
-1. **CDN (jsDelivr, unpkg)** - после публикации в npm:
-   ```html
-   <script src="https://cdn.jsdelivr.net/npm/aisup-widget/dist/widget.iife.js"></script>
-   ```
-
-2. **Свой сервер/S3/CloudFront:**
-   - Загрузите `dist/widget.iife.js` и `dist/widget.css`
-   - Дайте публичный URL
-
-3. **Netlify/Vercel:**
-   - Загрузите папку `dist` как статику
-
-### Публикация в npm
-
-```bash
-# 1. Убедитесь что вы залогинены
-npm login
-
-# 2. Обновите версию в package.json
-
-# 3. Опубликуйте
-npm publish
-```
-
-После публикации пакет будет доступен:
-- `npm install aisup-widget`
-- CDN: `https://cdn.jsdelivr.net/npm/aisup-widget`
-
-## 🔌 Интеграция с Backend
-
-Виджет использует REST API и WebSocket из `aisup-backend`:
-
-**REST API endpoints:**
-- `POST /api/integration/init` - Инициализация чата
-- `POST /api/integration/send-message` - Отправка сообщения
-- `POST /api/integration/messages` - Получение истории
-
-**WebSocket события:**
-- `integration_join` - Подключиться к чату
-- `message_added` - Новое сообщение
-- `chat_updated` - Обновление чата
-
-Документация API: `../aisup-backend/docs/INTEGRATION_API.md`
-
-## 🐛 Отладка
-
-Включите логирование в консоли браузера:
+## 📦 Полный пример конфигурации
 
 ```javascript
-localStorage.setItem('aisup_debug', 'true');
+new AISupportWidget({
+  // Обязательные
+  apiKey: 'aisup_xxxxxxxxxxxxxxxxxxxxxxxx',
+  apiUrl: 'https://api.your-domain.com',
+  
+  // Пользователь
+  userName: 'Иван Иванов',
+  
+  // Цвета
+  primaryColor: '#10B981',
+  userMessageBg: '#10B981',
+  botMessageBg: '#F3F4F6',
+  
+  // Позиция
+  position: 'bottom-right',
+  offsetX: '24px',
+  offsetY: '24px',
+  
+  // Размеры
+  widgetWidth: '400px',
+  widgetHeight: '550px',
+  buttonSize: '56px',
+  
+  // Тексты
+  headerTitle: 'Служба поддержки',
+  headerSubtitle: 'Обычно отвечаем за 5 минут',
+  placeholderText: 'Введите сообщение...',
+  
+  // Дополнительно
+  headless: false,
+  enableAnimations: true,
+  zIndex: 999999
+});
 ```
 
-Логи будут показываться с префиксом `[AISup]`.
+---
+
+## ✨ Возможности
+
+- 💬 Real-time чат через WebSocket
+- 🤖 AI автоответы
+- 👤 Переключение на живого оператора
+- 📎 Загрузка файлов (до 10MB)
+- 📱 Адаптивный дизайн (полноэкранный режим на мобильных)
+- 💾 Сохранение истории чата
+- 🔔 Уведомления о новых сообщениях
+
+---
+
+## 📱 Поддержка
+
+- Chrome, Firefox, Safari, Edge (последние версии)
+- iOS Safari 12+
+- Android Chrome 8+
+- Планшеты и мобильные устройства
+
+---
 
 ## 📝 Лицензия
 
 MIT
-
-## 🤝 Поддержка
-
-Для вопросов и поддержки создайте issue в репозитории.
