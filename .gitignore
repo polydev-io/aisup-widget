@@ -1,5 +1,21 @@
 node_modules/
+dist/
 .DS_Store
 *.log
 .env
 .env.local
+
+# iOS
+ios/.build/
+ios/.swiftpm/
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+
+# Android
+android/.gradle/
+android/build/
+android/*/build/
+android/local.properties
+*.apk
+*.aab

@@ -311,6 +311,106 @@ new AISupportWidget({
 
 ---
 
+## 🔌 Headless API (без UI)
+
+Используйте API и Socket клиенты напрямую без виджета:
+
+```typescript
+import { AISupportAPIClient, AISupportSocketClient } from 'aisup-widget';
+
+// API клиент
+const api = new AISupportAPIClient({
+  apiKey: 'xxx',
+  apiUrl: 'https://api.example.com'
+});
+
+await api.init();
+await api.sendMessage('Hello!');
+const history = await api.getMessages();
+
+// Socket клиент
+const socket = new AISupportSocketClient(config);
+socket.setHandlers({
+  onMessage: (msg) => console.log('New:', msg),
+  onConnectionChange: (status) => console.log('Status:', status)
+});
+socket.connect();
+await socket.joinChat(chatId);
+```
+
+React хуки:
+
+```tsx
+import { useAISupport, useAISupportAPI, useAISupportSocket } from 'aisup-widget';
+
+// Комбинированный хук
+const { messages, sendMessage, isConnected } = useAISupport({
+  apiKey: 'xxx',
+  apiUrl: 'https://...',
+  autoInit: true
+});
+
+// Отдельно API
+const api = useAISupportAPI({ apiKey, apiUrl });
+
+// Отдельно Socket
+const socket = useAISupportSocket({ apiKey, apiUrl });
+```
+
+---
+
+## 📱 Мобильные SDK
+
+### iOS (Swift Package)
+
+```swift
+// Package.swift
+.package(url: "https://github.com/polydev-io/aisup-widget.git", from: "1.0.0")
+```
+
+```swift
+import AISupportSDK
+
+let sdk = AISupportSDK(config: AISupportConfig(
+    apiKey: "xxx",
+    apiUrl: "https://api.example.com"
+))
+
+sdk.onMessage = { message in print(message.content) }
+
+try await sdk.start()
+try await sdk.sendMessage("Привет!")
+```
+
+📖 [Полная документация iOS](ios/README.md)
+
+### Android (Kotlin)
+
+```kotlin
+// build.gradle.kts
+implementation("com.github.polydev-io:aisup-widget:1.0.0")
+```
+
+```kotlin
+import io.polydev.aisupport.*
+
+val sdk = AISupportSDK(AISupportConfig(
+    apiKey = "xxx",
+    apiUrl = "https://api.example.com"
+))
+
+sdk.onMessage = { message -> Log.d("Chat", message.content) }
+
+lifecycleScope.launch {
+    sdk.start()
+    sdk.sendMessage("Привет!")
+}
+```
+
+📖 [Полная документация Android](android/README.md)
+
+---
+
 ## ✨ Возможности
 
 - 💬 Real-time чат через WebSocket
@@ -323,12 +423,15 @@ new AISupportWidget({
 
 ---
 
-## 📱 Поддержка
+## 📱 Поддержка платформ
 
-- Chrome, Firefox, Safari, Edge (последние версии)
-- iOS Safari 12+
-- Android Chrome 8+
-- Планшеты и мобильные устройства
+| Платформа | Версия |
+|-----------|--------|
+| Web (Chrome, Firefox, Safari, Edge) | Последние 2 версии |
+| iOS | 13+ |
+| Android | API 21+ (5.0) |
+| React | 16.8+ |
+| Next.js | 12+ |
 
 ---
 
