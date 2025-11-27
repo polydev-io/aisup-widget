@@ -1,0 +1,20 @@
+{
+  "name": "aisup-widget",
+  "version": "1.0.0",
+  "description": "Embeddable AI Support Chat Widget",
+  "main": "dist/widget.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["chat", "widget", "support", "ai", "embed"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.5"
+  }
+}
