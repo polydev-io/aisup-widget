@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AISupportAPIClient } from '../api-client';
 
+// Mock fetch globally
+const mockFetch = vi.fn();
+vi.stubGlobal('fetch', mockFetch);
+
 describe('AISupportAPIClient', () => {
   const mockConfig = {
     apiKey: 'test-api-key',
@@ -11,7 +15,7 @@ describe('AISupportAPIClient', () => {
 
   beforeEach(() => {
     client = new AISupportAPIClient(mockConfig);
-    global.fetch = vi.fn();
+    mockFetch.mockReset();
   });
 
   afterEach(() => {
@@ -38,14 +42,14 @@ describe('AISupportAPIClient', () => {
         chat: { id: 'chat-123', status: 'active' },
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       });
 
       const result = await client.init();
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         'https://api.test.com/api/integration/init',
         expect.objectContaining({
           method: 'POST',
@@ -59,7 +63,7 @@ describe('AISupportAPIClient', () => {
     });
 
     it('should throw on failed init', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
       });
@@ -70,7 +74,7 @@ describe('AISupportAPIClient', () => {
 
   describe('sendMessage', () => {
     beforeEach(async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ success: true, chatId: 'chat-123' }),
       });
@@ -83,14 +87,14 @@ describe('AISupportAPIClient', () => {
         message: { id: 'msg-1', content: 'Hello', sender: 'user' },
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       });
 
       const result = await client.sendMessage('Hello');
 
-      expect(global.fetch).toHaveBeenLastCalledWith(
+      expect(mockFetch).toHaveBeenLastCalledWith(
         'https://api.test.com/api/integration/send-message',
         expect.objectContaining({
           method: 'POST',
@@ -108,7 +112,7 @@ describe('AISupportAPIClient', () => {
 
   describe('getMessages', () => {
     beforeEach(async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ success: true, chatId: 'chat-123' }),
       });
@@ -122,14 +126,14 @@ describe('AISupportAPIClient', () => {
         hasMore: false,
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       });
 
       const result = await client.getMessages(50);
 
-      expect(global.fetch).toHaveBeenLastCalledWith(
+      expect(mockFetch).toHaveBeenLastCalledWith(
         expect.stringContaining('/api/integration/messages'),
         expect.objectContaining({ method: 'GET' })
       );
