@@ -37,9 +37,12 @@ describe('AISupportAPIClient', () => {
   describe('init', () => {
     it('should call init endpoint with correct params', async () => {
       const mockResponse = {
-        success: true,
-        chatId: 'chat-123',
-        chat: { id: 'chat-123', status: 'active' },
+        response: 'success',
+        message: 'Чат успешно создан',
+        data: {
+          chatId: 'chat-123',
+          startMessage: 'Добрый день!',
+        },
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -76,15 +79,15 @@ describe('AISupportAPIClient', () => {
     beforeEach(async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ success: true, chatId: 'chat-123' }),
+        json: () => Promise.resolve({ response: 'success', message: 'ok', data: { chatId: 'chat-123', startMessage: 'Hi' } }),
       });
       await client.init();
     });
 
     it('should send message with content', async () => {
       const mockResponse = {
-        success: true,
-        message: { id: 'msg-1', content: 'Hello', sender: 'user' },
+        response: 'success',
+        message: 'Сообщение успешно отправлено',
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -114,16 +117,16 @@ describe('AISupportAPIClient', () => {
     beforeEach(async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ success: true, chatId: 'chat-123' }),
+        json: () => Promise.resolve({ response: 'success', message: 'ok', data: { chatId: 'chat-123', startMessage: 'Hi' } }),
       });
       await client.init();
     });
 
     it('should fetch messages with pagination', async () => {
       const mockResponse = {
-        success: true,
-        messages: [{ id: 'msg-1', content: 'Test' }],
-        hasMore: false,
+        response: 'success',
+        message: 'Сообщения успешно получены',
+        data: [{ _id: 'msg-1', content: 'Test', role: 'user', type: 'text' }],
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -135,9 +138,9 @@ describe('AISupportAPIClient', () => {
 
       expect(mockFetch).toHaveBeenLastCalledWith(
         expect.stringContaining('/api/integration/messages'),
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ method: 'POST' })
       );
-      expect(result.messages).toHaveLength(1);
+      expect(result.data).toHaveLength(1);
     });
   });
 });

@@ -15,9 +15,9 @@ export interface Message {
   _id: string;
   chat: string;
   content: string;
-  sender: 'user' | 'bot' | 'operator';
-  senderName?: string;
-  attachments?: Attachment[];
+  role: 'user' | 'bot' | 'admin';
+  type: 'text' | 'photo' | 'file' | 'audio' | 'video' | 'video_note' | 'voice';
+  caption?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,26 +42,36 @@ export interface Chat {
 }
 
 export interface InitResponse {
-  success: boolean;
-  chatId: string;
-  chat: Chat;
-  welcomeMessage?: string;
+  response: string;
+  message: string;
+  data: {
+    chatId: string;
+    startMessage: string;
+  };
 }
 
 export interface SendMessageResponse {
-  success: boolean;
-  message: Message;
+  response: string;
+  message: string;
 }
 
 export interface MessagesResponse {
-  success: boolean;
-  messages: Message[];
-  hasMore: boolean;
+  response: string;
+  message: string;
+  data: Message[];
 }
 
 export interface UploadResponse {
-  success: boolean;
-  attachment: Attachment;
+  response: string;
+  message: string;
+  data: {
+    url: string;
+    type: string;
+    originalName: string;
+    size: number;
+    mimetype: string;
+    messageId: string;
+  };
 }
 
 export class AISupportAPIClient {
@@ -101,6 +111,8 @@ export class AISupportAPIClient {
    * Initialize a new chat session
    */
   async init(): Promise<InitResponse> {
+    const clientChatId = this.chatId || crypto.randomUUID();
+    
     const response = await fetch(`${this.config.apiUrl}/api/integration/init`, {
       method: 'POST',
       headers: {
@@ -108,8 +120,8 @@ export class AISupportAPIClient {
         'X-API-Key': this.config.apiKey,
       },
       body: JSON.stringify({
-        userName: this.config.userName,
-        chatId: this.chatId,
+        chatId: clientChatId,
+        chatNickname: this.config.userName,
       }),
     });
 
@@ -118,7 +130,7 @@ export class AISupportAPIClient {
     }
 
     const data: InitResponse = await response.json();
-    this.chatId = data.chatId;
+    this.chatId = data.data.chatId;
     return data;
   }
 
@@ -138,8 +150,7 @@ export class AISupportAPIClient {
       },
       body: JSON.stringify({
         chatId: this.chatId,
-        content,
-        attachments,
+        messageText: content,
       }),
     });
 
@@ -158,20 +169,15 @@ export class AISupportAPIClient {
       throw new Error('Chat not initialized. Call init() first.');
     }
 
-    const params = new URLSearchParams({
-      chatId: this.chatId,
-      limit: limit.toString(),
-    });
-
-    if (before) {
-      params.append('before', before);
-    }
-
-    const response = await fetch(`${this.config.apiUrl}/api/integration/messages?${params}`, {
-      method: 'GET',
+    const response = await fetch(`${this.config.apiUrl}/api/integration/messages`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'X-API-Key': this.config.apiKey,
       },
+      body: JSON.stringify({
+        chatId: this.chatId,
+      }),
     });
 
     if (!response.ok) {

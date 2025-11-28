@@ -1,6 +1,6 @@
 {
   "name": "aisup-widget",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Embeddable AI Support Chat Widget with React/Next.js support",
   "type": "module",
   "main": "dist/widget.umd.js",
